@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
+:root {
+    --background-color: whitesmoke;
+    --foreground-color: #7Be3b8;
+    --foreground-color-dark: #7Be3b8;
+    --text-color: #3F3D56;
+    --aux-color:#F86D70;
+
+}
+
+body{
+    background: var(--background-color);
+    margin: 0px;
+    color: var(--text-color);
+    
+
+}
+.main{
+    margin:10px;
+    height: 100vh;
+
+}
+.main-header{
+    background-color: var(--foreground-color);
+    
+    height: 90px;
+   
+
+    border-radius: 50px 50px 5px 50px;
+}
+.sign-in-container-padding{
+    height:75%;
+}
+.sign-in-container{
+    background-color: var(--foreground-color);
+    border-radius:50px 50px 5px 50px;
+    height: 75%;
+}
+.form-control{
+    background-color: var(--foreground-color);
+    border-color: var(--foreground-color);
+    color: var(--text-color);    
+    font-size: 30px;
+    
+}
+.join-chat{
+    font-size:30px;
+
+    
+}
+input, select {
+    background-color:var(--aux-color);
+    border-radius: 10px 10px 2px 10px;
+    border-color: var(--aux-color);
+    width: 50%;
+}
+::placeholder, option{
+    color: whitesmoke;
+    opacity: 1;
+}
