@@ -7,17 +7,21 @@ const formatMessage = require("./utils/message");
 const {userJoin, getCurrentUser, userLeave, getRoomUsers} = require("./utils/users");
 const mongoose = require("mongoose");
 require("dotenv").config();
-
+const {PredictionServiceClient} = require('@google-cloud/automl').v1;
+const client = new PredictionServiceClient();
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
-mongoose.connect(process.env.DB_URI);
+mongoose.connect("mongodb+srv://Rohan:rohan@openhacks2020-hu4by.gcp.mongodb.net/test?retryWrites=true&w=majority");
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, "connection error:"));
 
 // Set static folder
 app.use(express.static(path.join(__dirname, 'public')));
 
+const projectId = 'able-device-278817';
+const location = 'us-central1';
+const modelId = 'TST3342236072485584896';
 const adminName = "Admin";
 
 const sadSchema = new mongoose.Schema({
@@ -39,55 +43,35 @@ const Room = mongoose.model("Room", roomSchema);
 //     console.log("hi")
 // });
 
-console.log(Room);
 
-function getScore(msg, doc) {
-    const data = JSON.stringify({
+async function getScore(msg, doc) {
+    const data = {
+				"name": client.modelPath(projectId, location, modelId),
         "payload": {
             "textSnippet": {
                 "content": msg,
                 "mime_type": "text/plain"
             }
         }
-    });
-
+    }
     // Calculate score with new message
-    const req = https.request({
-        host: "automl.googleapis.com",
-        path: "/v1/projects/757526254746/locations/us-central1/models/TST3342236072485584896:predict",
-        method: "POST",
-        headers: {
-            "Authorization": "Bearer ya29.c.Ko8BzQfnX6frkyRSQVcJiDcmeEDDhtPnHKFezAClXt0XdvI9YeweOAPNVh2BAIqJ5b0DmInwl_NCX-fC9QU6lXm5TLS_k0aQijkruMZ3B7EhEBluwgkTgG6srfRmtlgEsZIHYTCbSDSkU6skRLGgK4pEYlw4_fEL0NuMal8VMydf8i4Fmou_BirvYIYe_c0KyWA",
-            "Content-Type": "application/json",
-        },
-    }, (res) => {
-        let data = '';
-        res.on('data', (chunk) => {
-            data += chunk;
-        });
-        res.on('end', () => {
-            console.log(data);
-
+		const res = await client.predict(data);
             console.log("doc:", doc);
-            let score = JSON.parse(data).payload[0].textSentiment.sentiment;
+            let score = res[0].payload[0].textSentiment.sentiment;
 
             const num = doc.num;
             const currentScore = doc.score;
             if (score === undefined) {
                 score = 0;
             }
-            console.log("score", score);
+            console.log("score for this message:", score);
 
             const newScore = (currentScore * num + score) / (num + 1);
-            console.log(newScore);
+            console.log("overall score:",newScore);
             doc.score = newScore;
             doc.num = doc.num + 1;
 
             doc.save();
-        });
-    });
-    req.write(data);
-    req.end();
 }
 
 // console.log("thing:", getScore("Hello"));
@@ -119,7 +103,19 @@ db.once('open', function () {
                             });
                         });
                     });
-                }
+                } else {
+									// Load previous messages from chat room
+                        Room.findOne({name: room}, (err, doc) => {
+                            if (err) {
+                                console.log("hi");
+                                return console.error(err);
+                            }
+                            console.log(doc);
+                            doc.contents.forEach((msg) => {
+                                socket.emit("message", msg.formattedMessage);
+                            });
+                        });
+								}
             });
 
             // Create mongoDB document for user if it doesn't exist
@@ -189,7 +185,7 @@ db.once('open', function () {
             const user = userLeave(socket.id);
 
             if (user) {
-                io.emit("message", formatMessage(adminName, `${user.username} A user has left the chat`));
+                io.emit("message", formatMessage(adminName, `${user.username} has left the chat`));
 
                 // Send users and room info
                 io.to(user.room).emit("roomUsers", {
