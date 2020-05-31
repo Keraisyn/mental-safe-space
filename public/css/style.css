@@ -57,6 +57,9 @@ body{
     border-radius: 15px;
     box-shadow: 8px 8px 16px var(--foreground-color-dark);  
 }
+.join-chat:hover {
+    background-color: #c83D40
+}
 
 label {
     margin-right: 4%;

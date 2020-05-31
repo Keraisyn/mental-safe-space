@@ -13,35 +13,41 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
         integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk="
         crossorigin="anonymous"
-        /></head>
+        />
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+      </head>
     <body>
-        <div class="chat-container">
-            <header class="chat-header">
-              <h1 class = "Display-1"></h1> DepressyCord</h1>
-              <a href="index.html" class="btn">Leave Room</a>
-            </header>
-            <main class="chat-main">
-              <div class="chat-sidebar">
-                <h3><i class="fas fa-comments"></i> Room Name:</h3>
-                <h2 id="room-name"></h2>
-                <h3><i class="fas fa-users"></i> Users</h3>
-                <ul id="users"></ul>
-              </div>
-              <div class="chat-messages"></div>
-            </main>
-            <div class="chat-form-container">
-              <form id="chat-form">
-                <input
-                  id="msg"
-                  type="text"
-                  placeholder="Enter Message"
-                  required
-                  autocomplete="off"
-                />
-                <button class="btn"><i class="fas fa-paper-plane"></i> Send</button>
-              </form>
+      <div class = "main-chat">
+        <header class = " mx-auto chat-header d-flex  justify-content-center align-items-center">
+          <h1 class = "display-4 chat-header-text">Mental SafeSpace</h1>
+          
+        </header>
+        <div class ="chat-main">
+          <div class="chat-messages" id="chat-messages"></div>
+          <div class = "chat-sidebar d-flex flex-column justify-content-center align-items-center h-auto">
+            <div class="sidebar-tile">
+              <h3>Room Name</h3>
+              <h2 id="room-name"></h2>
             </div>
+            <div class="sidebar-tile">
+              <h3>Users</h3>
+              <ul id="users"></ul>
+            </div>  
+            <a href = "index.html" class = "btn leaveRoom text-light">Leave Room</a>
           </div>
+          <div class = "chat-form-container">
+            <form id="chat-form">
+              <input
+              id = "msg"
+              type = "text"
+              placeholder = "Message room"
+              required
+              autocomplete="off"/>
+            </form>
+          </div>
+        </div>
+      </div>
+
       
           <script
             src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.2/qs.min.js"

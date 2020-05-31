@@ -57,7 +57,7 @@ function getScore(msg, doc) {
         path: "/v1/projects/757526254746/locations/us-central1/models/TST3342236072485584896:predict",
         method: "POST",
         headers: {
-            "Authorization": "Bearer ya29.c.Ko8BzQfCtLJPFWcsrUHD2EuUVQE_H-g_DsoLFhtG_lrvCR4ghhtvtm40E8EqLbRTMIVDtVROdQyh1FzDkcUmUa3Eapnwqi-yxV73FWbPpvDGio2nQYbuR8VGrF3Bd6KTDyUrC7dJlT6Y7fASeoX9B2qWNeKa-Ipwd47t20mhMEoL9qBG9OspB3x2osrRaW0snT4",
+            "Authorization": "Bearer ya29.c.Ko8BzQfkJiweu-CTlpUjKbO6H33rN1R2pQ7rGMU-nYCLz72eWydzOScp58MZkHQeEYTFYAiNurZDu-F1vxGbFI_U5m2ztTi8RgOpRwOPZNCQb9WfqrCYFlBlTHE8kxiceQ7G6BO7N0DvTQMcW-xFsEgjvWZMyIov8tmUxHaSvmGaurG9ff-0enkqsFKNYl4wh2c",
             "Content-Type": "application/json",
         },
     }, (res) => {
