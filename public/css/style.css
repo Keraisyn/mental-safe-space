@@ -1,0 +1,77 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
+:root {
+    --background-color: #eee;
+    --foreground-color: #7Be3b8;
+    --foreground-color-dark: #3Ba378;
+    --text-color: #3F3D56;
+    --aux-color:#F86D70;
+
+}
+
+body{
+    background: var(--background-color);
+    margin: 0px;
+    color: var(--text-color);
+    
+
+}
+.main{
+    margin:10px;
+    height: 100vh;
+
+}
+.main-header{
+    background-color: var(--foreground-color);
+    
+    height: 8%;
+    box-shadow: 8px 8px 32px #999;
+
+    border-radius: 50px 50px 5px 50px;
+}
+.sign-in-container-padding{
+    height:75%;
+}
+
+.sign-in-container{
+    background-color: var(--foreground-color);
+    border-radius:50px 50px 5px 50px;
+    height: 75%;
+    margin: auto;
+    box-shadow: 16px 16px 32px #bbb;
+}
+.form-control{
+    background-color: #575a89;
+    border: none;
+    border-radius: 15px;
+    color: var(--text-color);    
+    font-size: 30px; 
+    box-shadow: 8px 8px 16px var(--foreground-color-dark);   
+}
+
+.join-chat{
+    font-size:30px;
+    border: none;
+    background-color: var(--aux-color);
+    color: whitesmoke;
+    border-radius: 15px;
+    box-shadow: 8px 8px 16px var(--foreground-color-dark);  
+}
+
+label {
+    margin-right: 4%;
+    color: whitesmoke;
+}
+
+input, select {
+    background-color:whitesmoke;
+    border-radius: 10px 10px 2px 10px;
+    border: none;
+    width: 50%;
+    font-size: 20px;
+    padding: 5px 10px;
+}
+::placeholder, option{
+    opacity: 1;
+    padding: 5px;
+}
