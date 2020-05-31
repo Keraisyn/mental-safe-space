@@ -6,7 +6,7 @@ const userList = document.getElementById('users');
 const {username, room} = Qs.parse(location.search, {
   ignoreQueryPrefix: true
 })
-document.title = room;
+document.title = `Mental SafeSpace | ${room}`;
 const socket = io();
 //Join chatroom
 socket.emit('joinRoom', {username, room});

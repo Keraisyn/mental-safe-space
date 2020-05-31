@@ -22,7 +22,7 @@ io.on("connection", socket => {
         socket.join(user.room);
 
         // Welcome user
-        socket.emit("message", formatMessage(adminName), "Welcome!");
+        socket.emit("message", formatMessage(adminName, "Welcome!"));
 
         // Broadcast when user connects
         socket.broadcast.to(user.room).emit("message", formatMessage(adminName, `${user.username} has joined the chat`));
@@ -46,7 +46,7 @@ io.on("connection", socket => {
         const user = userLeave(socket.id);
 
         if(user) {
-            io.emit("message", formatMessage(adminName, `${user.username} A user has left the chat`));
+            io.emit("message", formatMessage(adminName, `${user.username} has left the chat`));
 
             // Send users and room info
             io.to(user.room).emit("roomUsers", {
