@@ -4,56 +4,96 @@ const express = require("express");
 const socketio = require("socket.io");
 const formatMessage = require("./utils/message");
 const {userJoin, getCurrentUser, userLeave, getRoomUsers} = require("./utils/users");
+const mongoose = require("mongoose");
+require("dotenv").config();
 
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
+mongoose.connect(process.env.DB_URI, {useNewUrlParser: true});
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, "connection error:"));
 
 // Set static folder
 app.use(express.static(path.join(__dirname, 'public')));
 
 const adminName = "Admin";
 
-// Run when client connects
-io.on("connection", socket => {
-    socket.on("joinRoom", ({username, room}) => {
-        const user = userJoin(socket.id, username, room);
+const roomSchema = new mongoose.Schema({
+    contents: Array,
+    name: String,
+});
 
-        socket.join(user.room);
+const Room = mongoose.model("Room", roomSchema);
 
-        // Welcome user
-        socket.emit("message", formatMessage(adminName), "Welcome!");
+db.once('open', function () {
 
-        // Broadcast when user connects
-        socket.broadcast.to(user.room).emit("message", formatMessage(adminName, `${user.username} has joined the chat`));
+    // Run when client connects
+    io.on("connection", socket => {
+        socket.on("joinRoom", ({username, room}) => {
+            // Create mongoDB document for this room if it doesn't exist
+            new Room({name: room, contents: []}).save();
 
-        // Send users and room info
-        io.to(user.room).emit("roomUsers", {
-            room: user.room,
-            users: getRoomUsers(user.room)
-        });
-    });
+            // Load previous messages from chat room
+            Room.findOne({name: room}, (err, doc) => {
+                doc.contents.forEach((msg) => {
+                   socket.emit("message", msg.formattedMessage);
+                });
 
-    // Listen for Message
-    socket.on("chatMessage", msg => {
-        const user = getCurrentUser(socket.id);
+                if (err) {
+                    console.log(err);
+                }
+            });
 
-        io.to(user.room).emit("message", formatMessage(user.username, msg));
-    });
+            const user = userJoin(socket.id, username, room);
 
-    // Runs when client disconnects
-    socket.on("disconnect", () => {
-        const user = userLeave(socket.id);
+            socket.join(user.room);
 
-        if(user) {
-            io.emit("message", formatMessage(adminName, `${user.username} A user has left the chat`));
+            // Welcome user
+            socket.emit("message", formatMessage(adminName, "Welcome!"));
+
+            // Broadcast when user connects
+            socket.broadcast.to(user.room).emit("message", formatMessage(adminName, `${user.username} has joined the chat`));
 
             // Send users and room info
             io.to(user.room).emit("roomUsers", {
                 room: user.room,
                 users: getRoomUsers(user.room)
             });
-        }
+        });
+
+        // Listen for Message
+        socket.on("chatMessage", msg => {
+            const user = getCurrentUser(socket.id);
+
+            // Emit message
+            const formattedMessage = formatMessage(user.username, msg);
+            io.to(user.room).emit("message", formattedMessage);
+
+            // Save in database
+            Room.findOne({name: user.room}, function (err, doc) {
+                doc.contents.push({formattedMessage});
+                doc.save();
+                if (err) {
+                    console.log(err);
+                }
+            })
+        });
+
+        // Runs when client disconnects
+        socket.on("disconnect", () => {
+            const user = userLeave(socket.id);
+
+            if (user) {
+                io.emit("message", formatMessage(adminName, `${user.username} A user has left the chat`));
+
+                // Send users and room info
+                io.to(user.room).emit("roomUsers", {
+                    room: user.room,
+                    users: getRoomUsers(user.room)
+                });
+            }
+        });
     });
 });
 
