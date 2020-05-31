@@ -57,7 +57,7 @@ function getScore(msg, doc) {
         path: "/v1/projects/757526254746/locations/us-central1/models/TST3342236072485584896:predict",
         method: "POST",
         headers: {
-            "Authorization": "Bearer ya29.c.Ko8BzQfkJiweu-CTlpUjKbO6H33rN1R2pQ7rGMU-nYCLz72eWydzOScp58MZkHQeEYTFYAiNurZDu-F1vxGbFI_U5m2ztTi8RgOpRwOPZNCQb9WfqrCYFlBlTHE8kxiceQ7G6BO7N0DvTQMcW-xFsEgjvWZMyIov8tmUxHaSvmGaurG9ff-0enkqsFKNYl4wh2c",
+            "Authorization": "Bearer ya29.c.Ko8BzQfnX6frkyRSQVcJiDcmeEDDhtPnHKFezAClXt0XdvI9YeweOAPNVh2BAIqJ5b0DmInwl_NCX-fC9QU6lXm5TLS_k0aQijkruMZ3B7EhEBluwgkTgG6srfRmtlgEsZIHYTCbSDSkU6skRLGgK4pEYlw4_fEL0NuMal8VMydf8i4Fmou_BirvYIYe_c0KyWA",
             "Content-Type": "application/json",
         },
     }, (res) => {
@@ -105,8 +105,20 @@ db.once('open', function () {
                     }).then(console.log("Doc created"));
 
                 }
-                if (doc === null) {
-                    new Room({name: room, contents: []}).save().then(console.log("Doc created!!"));
+                if (doc == null) {
+                    new Room({name: room, contents: []}).save().then(() => {
+                        // Load previous messages from chat room
+                        Room.findOne({name: room}, (err, doc) => {
+                            if (err) {
+                                console.log("hi");
+                                return console.error(err);
+                            }
+                            console.log(doc);
+                            doc.contents.forEach((msg) => {
+                                socket.emit("message", msg.formattedMessage);
+                            });
+                        });
+                    });
                 }
             });
 
@@ -120,17 +132,7 @@ db.once('open', function () {
                 }
             });
 
-            // Load previous messages from chat room
-            Room.findOne({name: room}, (err, doc) => {
-                if (err) {
-                    console.log("hi");
-                    return console.error(err);
-                }
-                // console.log(doc);
-                doc.contents.forEach((msg) => {
-                    socket.emit("message", msg.formattedMessage);
-                });
-            });
+            
 
             const user = userJoin(socket.id, username, room);
 
