@@ -176,6 +176,10 @@ db.once('open', function () {
 
                 getScore(msg, doc);
 
+                if (doc.score < 0.25 && doc.num >= 10) {
+                    socket.emit("warning");
+                }
+
             });
         });
         // Runs when client disconnects
