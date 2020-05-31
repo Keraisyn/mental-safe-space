@@ -1,5 +1,6 @@
 const path = require("path");
 const http = require("http");
+const https = require('https');
 const express = require("express");
 const socketio = require("socket.io");
 const formatMessage = require("./utils/message");
@@ -25,39 +26,71 @@ const sadSchema = new mongoose.Schema({
     score: Number,  // Average score of last 100 messages?
 });
 
-const Sad = db.model("Sad", sadSchema);
+const Sad = mongoose.model("Sad", sadSchema);
 
 const roomSchema = new mongoose.Schema({
     contents: Array,
     name: String,
 });
 
-const Room = db.model("Room", roomSchema);
+const Room = mongoose.model("Room", roomSchema);
 
-function getScore(msg) {
+// Room.create({name:"hi"}, function(err, doc) {
+//     console.log("hi")
+// });
+
+console.log(Room);
+
+function getScore(msg, doc) {
+    const data = JSON.stringify({
+        "payload": {
+            "textSnippet": {
+                "content": msg,
+                "mime_type": "text/plain"
+            }
+        }
+    });
+
     // Calculate score with new message
-    const req = http.request({
+    const req = https.request({
         host: "automl.googleapis.com",
         path: "/v1/projects/757526254746/locations/us-central1/models/TST3342236072485584896:predict",
         method: "POST",
         headers: {
-            "payload": {
-                "textSnippet": {
-                    "content": msg,
-                    "mime_type": "text/plain"
-                }
-            }
-        }
+            "Authorization": "Bearer ya29.c.Ko8BzQfCtLJPFWcsrUHD2EuUVQE_H-g_DsoLFhtG_lrvCR4ghhtvtm40E8EqLbRTMIVDtVROdQyh1FzDkcUmUa3Eapnwqi-yxV73FWbPpvDGio2nQYbuR8VGrF3Bd6KTDyUrC7dJlT6Y7fASeoX9B2qWNeKa-Ipwd47t20mhMEoL9qBG9OspB3x2osrRaW0snT4",
+            "Content-Type": "application/json",
+        },
     }, (res) => {
         let data = '';
         res.on('data', (chunk) => {
             data += chunk;
         });
         res.on('end', () => {
-            return JSON.parse(data).explanation;
+            console.log(data);
+
+            console.log("doc:", doc);
+            let score = JSON.parse(data).payload[0].textSentiment.sentiment;
+
+            const num = doc.num;
+            const currentScore = doc.score;
+            if (score === undefined) {
+                score = 0;
+            }
+            console.log("score", score);
+
+            const newScore = (currentScore * num + score) / (num + 1);
+            console.log(newScore);
+            doc.score = newScore;
+            doc.num = doc.num + 1;
+
+            doc.save();
         });
     });
+    req.write(data);
+    req.end();
 }
+
+// console.log("thing:", getScore("Hello"));
 
 db.once('open', function () {
 
@@ -68,10 +101,11 @@ db.once('open', function () {
             // Create mongoDB document for this room if it doesn't exist
             Room.findOne({name: room}, function (err, doc) {
                 if (err) {
-                    new Room({name: room, contents: []}).save().then(console.log("Doc created"));
-                    console.log("new room");
+                    Room.create({name: room, contents: []}, function () {
+                    }).then(console.log("Doc created"));
+
                 }
-                if (doc===null) {
+                if (doc === null) {
                     new Room({name: room, contents: []}).save().then(console.log("Doc created!!"));
                 }
             });
@@ -79,6 +113,9 @@ db.once('open', function () {
             // Create mongoDB document for user if it doesn't exist
             Sad.findOne({name: username}, function (err, doc) {
                 if (err) {
+                    new Sad({name: username, num: 0, score: 0}).save();
+                }
+                if (doc === null) {
                     new Sad({name: username, num: 0, score: 0}).save();
                 }
             });
@@ -89,8 +126,9 @@ db.once('open', function () {
                     console.log("hi");
                     return console.error(err);
                 }
+                // console.log(doc);
                 doc.contents.forEach((msg) => {
-                   socket.emit("message", msg.formattedMessage);
+                    socket.emit("message", msg.formattedMessage);
                 });
             });
 
@@ -131,23 +169,15 @@ db.once('open', function () {
             // Calculate new score
             Sad.findOne({name: user.username}, function (err, doc) {
                 if (err) {
-                    console.log(err);
+                    return console.error(err);
                 }
-                const score = getScore(msg);
 
-                const {num, currentScore} = doc;
+                console.log(doc);
 
-                const newScore = (currentScore * num + score) / (num + 1);
-
-                doc.score = newScore;
-                console.log(newScore);
-
-                doc.save();
+                getScore(msg, doc);
 
             });
-
         });
-
         // Runs when client disconnects
         socket.on("disconnect", () => {
             const user = userLeave(socket.id);
