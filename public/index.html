@@ -8,28 +8,27 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <!-- Custom CSS -->
     <link rel="stylesheet" href ="css/style.css">
-    <title>Chatting Time</title>
-    <style>
-    </style>
+    <title>Mental SafeSpace | Home</title>
 </head>
-<div  class = "main row mx-sm-5 d-flex justify-content-center align-items-center page-header">
-    <div class = " main-header  col-sm-3 d-flex justify-content-center align-items-center page-header ">
+<div  class = "main d-flex justify-content-center flex-column align-items-center page-header">
+    <div class = " main-header d-flex justify-content-center align-items-center page-header px-4">
         
-        <h1 class = "Display-1 ">DepressyCord</h1>
+        <h1 class = "Display-1 ">Mental SafeSpace</h1>
     </div>
-    <div class = "sign-in-container-padding col-sm-9 d-flex justify-content-center align-items-center">
-        <div class = "sign-in-container d-flex justify-content-center align-items-center">
-            <form action= "chat.html" class = "d-flex justify-content-center align-items-center">
-                <div class="form-control row mb-5">
+    <div class = "sign-in-container-padding d-flex justify-content-center align-items-center">
+        <div class = "sign-in-container d-flex justify-content-center align-items-center mx-auto">
+            <form action= "chat.html" class = "d-flex justify-content-center flex-column align-items-center mx-auto">
+                <div class="form-control d-flex flex-row justify-content-center align-items-center mb-5 w-75 py-5">
                     <label for="username">Username</label>
                     <input
                         type = "text"
                         name = "username"
                         id = "username"
-                        placeholder = "Enter username"
-                        required />
-                    </div>
-                <div class = "form-control row mb-5">
+                        placeholder = "elonmusk"
+                        required
+                    />
+                </div>
+                <div class = "form-control d-flex flex-row justify-content-center align-items-center mb-5 w-75 py-5">
                     <label for="room">Room</label>
                     <select name="room" id="room">
                         <option value="JavaScript">JavaScript</option>
@@ -40,7 +39,7 @@
                         <option value="Java">Java</option> 
                     </select>
                 </div>
-                <button type = "submit" class="btn join-chat row">Join Chat</button>
+                <button type = "submit" class="btn text-light join-chat row mx-auto px-4 py-2">Join Chat</button>
             </form>
             
         </div>
